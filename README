@@ -1,0 +1,1 @@
+Put {diabetes,genotype_tools,lookup,snp}.py in the directory, and EL_SNPs.csv and genome_stuart_kim.txt in a data/ directory.
