@@ -121,10 +121,16 @@ for el_rsid in el_rsids:
   
   # Impute if we have to...
   if el_snp is None:
-    el_snp = genotype_tools.impute_rsid_simple(user_snps, el_rsid, population)
-  # Could not impute, or some other error occurred.
+    try:
+      el_snp = genotype_tools.impute_rsid_simple(user_snps, el_rsid, population)
+    # TODO: workaround error with rs2042831 and CEU from Mikolaj Habryn.
+    except ValueError(e):
+      print("Error occurred imputing for %s: %s" % (el_rsid, e))
+      continue
+
+  # Imputation returned None (this should never happen).
   if el_snp is None:
-    print "Unable to impute value for el_rsid."
+    print "Unable to impute value for el_rsid: imputation returned None."
     continue
   
   # Update probabilities - multiply each by the probability of having this
