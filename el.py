@@ -124,7 +124,7 @@ for el_rsid in el_rsids:
     try:
       el_snp = genotype_tools.impute_rsid_simple(user_snps, el_rsid, population)
     # TODO: workaround error with rs2042831 and CEU from Mikolaj Habryn.
-    except ValueError(e):
+    except ValueError, e:
       print("Error occurred imputing for %s: %s" % (el_rsid, e))
       continue
 
