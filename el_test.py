@@ -74,7 +74,7 @@ population_choices = "(" + ", ".join(populations) + ")"
 
 if len(sys.argv) < 2:
   print("Usage: python el.py path/to/user/genome/file.txt " + 
-        "[optional population identifier]")
+        "[optional population identifier (you will be prompted if not given)]")
   sys.exit(2)
 
 if len(sys.argv) == 3:
@@ -93,6 +93,7 @@ if not os.path.exists(user_genome_path):
   print("No file found at %s." % (user_genome_path))
   sys.exit(2)
 
+print("Running (this may take some time)... ")
 user_snps = genotype_tools.FileUtils.read_genotype_file(user_genome_path)
 db.execute("SELECT db_snp FROM diseases.el_snps")
 el_rsids  = [row[0] for row in db.fetchall()]
