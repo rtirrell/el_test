@@ -1,12 +1,15 @@
+import cgi
 import sys
 import os
 import genotype_tools
+import subprocess
+import urllib
 
 import snp
 import mysql
 
 # Complementarity map.
-base_map = {
+BASE_MAP = {
   "A": "T",
   "T": "A",
   "C": "G",
@@ -58,18 +61,43 @@ def get_probabilities(el_snp, flipped=False):
     # If we haven't flipped the bases of the user's EL SNP, and we haven't 
     # found a match yet, flip now and call this function again.
     if not flipped:
-      el_snp.genotype = ''.join([base_map[a] for a in el_snp.genotype])
+      el_snp.genotype = ''.join([BASE_MAP[a] for a in el_snp.genotype])
       return get_probabilities(el_snp, True)
 
     print("Error occurred matching user SNP to EL SNP %s!" % el_snp.rsid)
     return (1, 1)
+
+GOOGLE_CHARTS_BASE_URL = "http://chart.apis.google.com/chart"
+
+GOOGLE_CHART_PARAMS = {
+  "cht": "lc",
+  "chs":  "630x240",
+  "chtt": "Probability of Extreme Longevity",
+  "chma": "15,5,5,5",
+  "chxt": "x,x,y,y",
+  "chxr": "0,1,150|2,0,1",
+  "chxl": "1:|Number of SNPs|3:|Proability of EL|",
+  "chxp": "1,50|3,50",
+}
+
+def build_chart_url(el_running_odds):
+  odds_series = ",".join(str(round(i, 4)) for i in el_running_odds)
+
+  GOOGLE_CHART_PARAMS["chd"] = "t:%s" % (odds_series,)
+  query_string = "&".join(
+    e[0] + "=" + e[1] for e in GOOGLE_CHART_PARAMS.items()
+  )
+
+  return GOOGLE_CHARTS_BASE_URL + "?" + query_string
+
+  
 
 database = mysql.connector.Connect(host='marlowe', user='gene210-user', 
                                    passwd='genomics', buffered=True)
 db = database.cursor()
 
 population = None
-populations = ("CEU", "CHB", "JPT",  "YRI")
+populations = ("CEU", "YRI")
 population_choices = "(" + ", ".join(populations) + ")"
 
 if len(sys.argv) < 2:
@@ -108,6 +136,9 @@ el_rsids  = [row[0] for row in db.fetchall()]
 # Pr(SNP-i | EL) / Pr(SNP-I | AL).
 el_odds = 1
 
+# Store the intermediate results for plotting, starting with 50%
+el_running_odds = [50]
+
 # For each EL-SNP, we get the value of that SNP from the provided genome 
 # and adjust the running EL and AL scores according to those values from the
 # paper.
@@ -133,7 +164,20 @@ for el_rsid in el_rsids:
   # Update probabilities - multiply by the ratio of the probability of EL
   # given this genotype / the probability of AL given this genotype.
   probabilities = get_probabilities(user_el_snp)
+  
   el_odds *= (probabilities[0] / probabilities[1])
+  # Store the running total for display later
+  el_running_odds.append((100 * (el_odds / (1 + el_odds))))
 
 print("Percentage chance of living to 100: %f" % \
       (100 * (el_odds / (1 + el_odds))))
+
+out_file_name = "extreme_longevity_test.html"
+out_file = open(out_file_name, "w")
+
+out_file.write("<html><body><h3 style='text-align:center;'>Estimated Percentage Chance of Living to be > 100</h3>")
+out_file.write("<img src='" + chart_url + "'</img>")
+out_file.write("</body></html>")
+
+out_file.close()
+subprocess.Popen(("open", out_file_name)).wait()
