@@ -176,7 +176,7 @@ out_file_name = "extreme_longevity_test.html"
 out_file = open(out_file_name, "w")
 
 out_file.write("<html><body><h3 style='text-align:center;'>Estimated Percentage Chance of Living to be > 100</h3>")
-out_file.write("<img src='" + chart_url + "'</img>")
+out_file.write("<img src='" + build_chart_url(el_running_odds) + "'</img>")
 out_file.write("</body></html>")
 
 out_file.close()
