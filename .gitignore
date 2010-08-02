@@ -3,4 +3,4 @@ genotype_tools.py
 lookup.py
 diabetes.py
 snp.py
-
+*.html
