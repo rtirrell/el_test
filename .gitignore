@@ -4,3 +4,5 @@ lookup.py
 diabetes.py
 snp.py
 *.html
+*.zip
+*.xlsx

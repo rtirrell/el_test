@@ -18,4 +18,11 @@ CREATE TABLE el_rsids (
   f_controls_ab REAL,
   f_controls_bb REAL,
   PRIMARY KEY (rsid)
-)
+);
+
+CREATE TABLE class_el_probabilities ( 
+  codename VARCHAR(255) NOT NULL, 
+  population VARCHAR(255) NOT NULL,
+ probability REAL NOT NULL 
+); 
+
