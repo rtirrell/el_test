@@ -1,4 +1,4 @@
-for f in `find data -name genome_*`; do 
-  echo $f && python el_test.py $f ceu; 
+for f in `find data -name genome_*.txt`; do 
+  echo $f && python longevity.py $f ceu codename-`basename $f`; 
 done
 
