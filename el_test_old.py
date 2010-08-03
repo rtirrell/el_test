@@ -90,7 +90,7 @@ def build_chart_url(el_running_odds):
 
   return GOOGLE_CHARTS_BASE_URL + "?" + query_string
 
-printdebug = False
+  
 
 database = mysql.connector.Connect(host='marlowe', user='gene210-user', 
                                    passwd='genomics', buffered=True)
@@ -122,11 +122,7 @@ if not os.path.exists(user_genome_path):
   sys.exit(2)
 
 print("Running (this may take some time)... ")
-
-sys.stdout.write("Loading Genotype file from %s... " % user_genome_path)
-sys.stdout.flush()
 user_snps = genotype_tools.FileUtils.read_genotype_file(user_genome_path)
-print("DONE")
 db.execute("SELECT db_snp FROM diseases.el_snps")
 el_rsids  = [row[0] for row in db.fetchall()]
 
@@ -146,20 +142,12 @@ el_running_odds = [50]
 # For each EL-SNP, we get the value of that SNP from the provided genome 
 # and adjust the running EL and AL scores according to those values from the
 # paper.
-
-# Track any imputed SNPs for output
-imputed_snps = []
-
 for el_rsid in el_rsids:
-  # track if we imputed this SNP
-  snp_imputed = False
-  
   # If we already have a value for this SNP - use it.
   user_el_snp = user_snps.get("rs" + el_rsid, None)
   
   # Impute if we have to...
   if user_el_snp is None:
-    
     try:
       user_el_snp = genotype_tools.impute_rsid_simple(user_snps, "rs" + el_rsid,
                                                       population)
@@ -168,13 +156,9 @@ for el_rsid in el_rsids:
       print("Error occurred imputing for %s: %s." % (el_rsid, e))
       continue
 
-    # This SNP was Imputed
-    print("Imputed SNP: rs%s" %(el_rsid))
-    imputed_snps.append("rs"+el_rsid)
-    
   # Imputation returned None (this should never happen).
   if user_el_snp is None:
-    print "Unable to impute value for SNP rs%s: imputation returned None." % el_rsid
+    print "Unable to impute value for %s: imputation returned None." % el_rsid
     continue
   
   # Update probabilities - multiply by the ratio of the probability of EL
@@ -185,29 +169,14 @@ for el_rsid in el_rsids:
   # Store the running total for display later
   el_running_odds.append((100 * (el_odds / (1 + el_odds))))
 
-centenarian_chance = 100 * (el_odds / (1 + el_odds))
 print("Percentage chance of living to 100: %f" % \
       (100 * (el_odds / (1 + el_odds))))
 
-# We'll name the output HTML file based on the input genome file's name
-_, filename_nopath = os.path.split(user_genome_path)
-#out_file_name = "extreme_longevity_test.html"
-out_file_name = filename_nopath + ".html"
+out_file_name = "extreme_longevity_test.html"
 out_file = open(out_file_name, "w")
 
-out_file.write("<html><head><title>Exceptional Longevity Exercise></title></head><body><h3 style='text-align:left;'>Estimated Percentage Chance of Exceptional Longevity</h3>")
-out_file.write('''
-    Genome File: %s<br>
-    Population given was: %s<br>
-    Estimated Chance of Living > 100 years: %.4f%%<br><br>
-''' % (filename_nopath, population, centenarian_chance))
-out_file.write("<img src='" + build_chart_url(el_running_odds) + "'</img><br><br>")
-if len(imputed_snps) == 0:
-    out_file.write("Imputed SNPs: NONE<br>")
-else:
-    out_file.write("Imputed SNPs:<br>")
-    for curr_snp in imputed_snps:
-       out_file.write("&nbsp;&nbsp;&nbsp;&nbsp;%s<br>" % (curr_snp))
+out_file.write("<html><body><h3 style='text-align:center;'>Estimated Percentage Chance of Living to be > 100</h3>")
+out_file.write("<img src='" + build_chart_url(el_running_odds) + "'</img>")
 out_file.write("</body></html>")
 
 out_file.close()
