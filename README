@@ -1,3 +1,0 @@
-Copy {genotype_tools,snp}.py in this directory before running the program.
-Run "python el_test.py" for information on usage.
-run-all.sh will run the script on all files like "genome_*" in a data/ directory (which you should create).

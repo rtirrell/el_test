@@ -6,22 +6,25 @@
 \usepackage{fullpage}
 
 \title{Exceptional Longevity Exercise}
-\date{\today}
+\author{Sam Pearlman, Rob Tirrell, Noah Zimmerman}
+\date{4th August 2010}
 
 \begin{document}
 \maketitle
 
+\section*{Part 2}
+
 \paragraph{} 
-  In a July 2010 Sciencexpress publication (10.1126/science.1190532), Sebastiani et al. reported the results of a genome-wide association study (GWAS) of 1055 centenarians and 1267 control subjects. 
-  Based on the results of the study they built a genetic model of 150 single-nucleotide polymorphisms (SNPs) that could predict exceptional longevity (EL, as opposed to “Average Longevity”, AL) with 77\% accuracy.
+  In a July 2010 Sciencexpress publication (10.1126/science.1190532), Sebastiani \emph{et al.} reported the results of a genome-wide association study (GWAS) of 1055 centenarians and 1267 control subjects. 
+  Based on the results of the study they built a genetic model of 150 single-nucleotide polymorphisms (SNPs) that could predict ``exceptional longevity'' (EL, as opposed to ``average longevity'', AL) with 77\% accuracy.
 
 \paragraph{}
   In this exercise, you are going to calculate the chance of living beyond 100 years old.
-  Please note: the results of this calculation are based solely on the method described in the above paper, which has been under quite a bit of scrutiny for its claims of predictive value. 
+  \textbf{A first caveat:} note that the results of this calculation are based solely on the method described in the above paper, which has been under quite a bit of scrutiny for its claims of predictive value. 
   Please take this to be an exercise in working with genomic data rather than a gold-standard prediction of your chances at longevity!
 
 \paragraph{}
-  From the study the authors ordered the SNPs in descending order of Bayesian significance with respect to prediciting EL. 
+  From the study the authors ordered the SNPs in descending order of Bayesian significance with respect to predicting EL. 
   They then built nested SNP sets, starting with just the first SNP, then the first 2 SNPs, \ldots, up to all 150 SNPs in the last set, with the full set to be the best predictor of EL.
   We have implemented their Bayesian model in a python script. The model uses the prior probabilities of having each SNP variant given EL or AL, and starts with the prior probabilities $P(EL) = P(AL) = 0.5$. The main equation is given in Supplemental Figure S7 as: \\
   \begin{center}
@@ -34,12 +37,10 @@
   \item You may use your own genotype file, or one of the files downloaded from \url{http://gene210.stanford.edu/data/Genomes/}.
   \item Open the Terminal application (Applications - Utilities - Terminal), and navigate to where you have place your genome file(s).
   \item You should still have a link the the GENE210 scripts directory, gene210-scripts. 
-    Run the script using the following one of the following syntaxes (if you don't give the population and codename arguments, you'll be asked to input them): \\
-    \texttt{python el\_test.py <genome\_file>} \\
-    \texttt{python el\_test.py <genome\_file> [CEU | YRI] [codename]}
+    Run the script using one of the following syntaxes (if you don't give the population and codename arguments, you'll be asked to input them): \\
+    \texttt{python gene210-scripts/longevity.py <genome\_file>} \\
+    \texttt{python gene210-scripts/longevity.py [CEU | YRI] [codename]}
 
-  \item We have also included a helper script run-all.sh, which will run the script on all genome files named with the convention genome\_*.txt that have been placed in a directory named data/ in your current directory.
-  
   \item Output will be printed to the Terminal, and an HTML page showing your chance of EL as well as some other data will be opened in your web browser as well as stored in your current directory with the same name as the genome file used to generate it, with .html appended. 
     The page also shows a graph for the progressing $P(EL)$ for the nested SNP sets, starting at the prior probability $P(EL) = 0.5$, and then changing as the sets have an additional SNP added to each one up to the full 150 SNP set.
 
